@@ -65,8 +65,7 @@ app.delete('/api/persons/:id', (request, response) => {
       response.status(204).end()
     })
     .catch((error) => {
-      console.log(error)
-      response.status(404).send({ error: 'nic se dogodilo' })
+      next(error)
     })
 })
 
@@ -99,6 +98,18 @@ app.post('/api/persons', (request, response) => {
 
   person.save().then((savedPerson) => response.json(savedPerson))
 })
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'misformatted id' })
+  }
+
+  next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
