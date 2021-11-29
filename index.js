@@ -44,9 +44,13 @@ app.get('/', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-  let numOfPersons = persons.length
   let date = new Date()
-  response.send(`<p>Phonebook has info for ${numOfPersons} people</p> ${date}`)
+
+  Person.find({}).then((persons) => {
+    response.send(
+      `<p>Phonebook has info for ${persons.length} people</p> ${date}`
+    )
+  })
 })
 
 app.get('/api/persons', (request, response) => {
@@ -56,7 +60,15 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-  Person.findById(request.params.id).then((person) => response.json(person))
+  Person.findById(request.params.id)
+    .then((person) => {
+      if (person) {
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch((error) => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response) => {
