@@ -19,12 +19,18 @@ const personSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    minlength: 3,
   },
   number: {
     type: String,
     required: true,
-    unique: true,
+    minlength: 8,
   },
+})
+
+personSchema.pre('findOneAndUpdate', function (next) {
+  this.options.runValidators = true
+  next()
 })
 
 personSchema.plugin(uniqueValidator)
