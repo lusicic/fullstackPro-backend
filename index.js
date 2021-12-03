@@ -81,27 +81,20 @@ app.delete('/api/persons/:id', (request, response) => {
     })
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
-  //const generatedId = Math.floor(Math.random() * 100)
-
-  if (body.name === undefined) {
-    return response.status(400).json({
-      error: 'name missing',
-    })
-  } else if (body.number === undefined) {
-    return response.status(400).json({
-      error: 'number missing',
-    })
-  }
+  //const generatedId = Math.floor(Math.random() * 100
 
   const person = new Person({
     name: body.name,
     number: body.number,
   })
 
-  person.save().then((savedPerson) => response.json(savedPerson))
+  person
+    .save()
+    .then((savedPerson) => response.json(savedPerson))
+    .catch((error) => next(error))
 })
 
 app.put('/api/persons/:id', (request, response) => {
@@ -123,6 +116,8 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'misformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
   }
 
   next(error)
