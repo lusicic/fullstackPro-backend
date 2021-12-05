@@ -1,5 +1,4 @@
 require('dotenv').config()
-const { request, response } = require('express')
 const express = require('express')
 const cors = require('cors')
 var morgan = require('morgan')
@@ -13,10 +12,10 @@ app.use(cors())
 app.use(express.json())
 //app.use(morgan('tiny'))
 
-morgan.token('body', (req, res) => JSON.stringify(req.body))
+morgan.token('body', (req) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :response-time ms :body'))
 
-let persons = [
+/*let persons = [
   {
     id: 1,
     name: 'Arto Hellas',
@@ -37,7 +36,7 @@ let persons = [
     name: 'Mary Poppendieck',
     number: '39-23-6423122',
   },
-]
+]*/
 
 app.get('/', (request, response) => {
   response.send('<h1>Poyy</h1>')
@@ -59,7 +58,7 @@ app.get('/api/persons', (request, response) => {
   })
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
     .then((person) => {
       if (person) {
@@ -71,9 +70,9 @@ app.get('/api/persons/:id', (request, response) => {
     .catch((error) => next(error))
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-    .then((result) => {
+    .then(() => {
       response.status(204).end()
     })
     .catch((error) => {
@@ -108,7 +107,7 @@ app.put('/api/persons/:id', (request, response) => {
     .then((updatedPerson) => {
       response.json(updatedPerson)
     })
-    .catch((error) => next(error))
+    .catch((error) => console.log(error))
 })
 
 const errorHandler = (error, request, response, next) => {
